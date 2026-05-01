@@ -134,8 +134,8 @@ cd vd-hotkeys
 powershell -ExecutionPolicy Bypass -File package.ps1
 
 # Outputs
-dist\vd-hotkeys-v0.1.0-setup.exe        # installer (requires Inno Setup)
-dist\vd-hotkeys-v0.1.0-windows-x64.zip  # portable zip (exe + docs)
+dist\vd-hotkeys-v0.1.1-setup.exe        # installer (requires Inno Setup)
+dist\vd-hotkeys-v0.1.1-windows-x64.zip  # portable zip (exe + docs)
 ```
 
 The installer registers autostart via `HKCU\...\Run` and adds an entry to
