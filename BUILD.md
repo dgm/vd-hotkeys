@@ -19,7 +19,7 @@ machines where the full supply chain must be accountable.
 - Switch directly to virtual desktop 1–N by hotkey (no sequential stepping)
 - Fully auditable supply chain: every dependency is source-available and
   buildable from scratch
-- Single static `.exe` output, no installer, no runtime dependencies
+- Single static `.exe` output, no runtime dependencies
 - No telemetry, no network access, no elevation required at runtime
 - Suitable for use on managed/corporate Windows machines
 
@@ -115,9 +115,8 @@ The scheme is configurable in `src/config.rs` without touching any other file.
 ## Build Requirements
 
 - Windows 11 24H2 (build 26100.2605 or later) — target runtime
-- Rust toolchain (stable, x86_64-pc-windows-msvc) — cross-compile from Linux
-  is possible with the MSVC target but requires the Windows SDK headers;
-  building on Windows is simpler
+- Rust toolchain (stable, x86_64-pc-windows-msvc)
+- [Inno Setup 6](https://jrsoftware.org/isinfo.php) — required to build the installer
 - No elevated privileges required to build or run
 
 ## Build Instructions
@@ -126,14 +125,21 @@ The scheme is configurable in `src/config.rs` without touching any other file.
 # Install Rust (if not already installed)
 winget install Rustlang.Rustup
 
+# Install Inno Setup 6 (if not already installed)
+winget install JRSoftware.InnoSetup
+
 # Clone and build
 git clone <this repo>
 cd vd-hotkeys
-cargo build --release --locked
+powershell -ExecutionPolicy Bypass -File package.ps1
 
-# Output
-target\release\vd-hotkeys.exe
+# Outputs
+dist\vd-hotkeys-v0.1.0-setup.exe        # installer (requires Inno Setup)
+dist\vd-hotkeys-v0.1.0-windows-x64.zip  # portable zip (exe + docs)
 ```
+
+The installer registers autostart via `HKCU\...\Run` and adds an entry to
+Add/Remove Programs. No elevation required.
 
 ## Reference
 
