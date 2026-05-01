@@ -6,6 +6,8 @@
 $ErrorActionPreference = "Stop"
 trap { Write-Host "`nERROR: $_" -ForegroundColor Red; Read-Host "`nPress Enter to exit"; exit 1 }
 
+Set-Location $PSScriptRoot
+
 # Read version from Cargo.toml
 $cargo = Get-Content "$PSScriptRoot\Cargo.toml" | Where-Object { $_ -match '^version\s*=' }
 $version = ($cargo -split '"')[1]
