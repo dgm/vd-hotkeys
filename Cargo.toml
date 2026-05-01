@@ -1,0 +1,23 @@
+[package]
+name = "vd-hotkeys"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "vd-hotkeys"
+path = "src/main.rs"
+
+[dependencies]
+winvd = "0.0.49"
+
+[dependencies.windows]
+version = "0.58"
+features = [
+    "Win32_Foundation",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+[profile.release]
+opt-level = "z"
+strip = true
