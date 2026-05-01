@@ -25,7 +25,8 @@ machines where the full supply chain must be accountable.
 
 ## Non-Goals
 
-- Moving windows between desktops (out of scope for v1)
+- Moving windows between desktops (stretch goal: drag + hotkey to carry a
+  window to another desktop)
 - Desktop naming, wallpaper management
 - System tray UI
 - Support for Windows 10 or Windows versions prior to 24H2 (build 26100)
@@ -73,12 +74,30 @@ The program uses two Win32 subsystems:
 **Hotkey registration** (`user32.dll`):
 - `RegisterHotKey` — registers a global hotkey combination
 - `UnregisterHotKey` — cleanup on exit
-- `GetMessage` / `TranslateMessage` / `DispatchMessage` — Windows message loop
-  to receive hotkey events
+- `GetMessageW` — Windows message loop to receive hotkey events
+
+**Focus tracking** (`user32.dll`):
+- `GetForegroundWindow` — capture the active window before switching away
+- `SetForegroundWindow` — restore focus after switching to a desktop
+- `IsWindow` — validate a saved window handle still exists
+- `EnumWindows` — walk Z-order to find a fallback window if the saved one is gone
+- `IsWindowVisible` / `IsIconic` / `GetWindowLongW` / `GetWindowTextLengthW` —
+  filter for real app windows during fallback enumeration
+- `SendInput` — simulate Alt key press/release to satisfy Windows' foreground
+  lock requirement (the "Alt-key trick"; see code comments)
+
+**Self-replacement** (`kernel32.dll` / `toolhelp32`):
+- `GetCurrentProcessId` — identify ourselves
+- `CreateToolhelp32Snapshot` / `Process32FirstW` / `Process32NextW` — enumerate
+  running processes to find existing instances
+- `OpenProcess` / `TerminateProcess` — kill the old instance so hotkeys can be
+  re-registered
 
 **Virtual desktop switching** (via `winvd`, through COM):
 - `CoCreateInstance(CLSID_ImmersiveShell)` — get shell service provider
 - `IVirtualDesktopManagerInternal::GetDesktops()` — enumerate desktops
+- `IVirtualDesktopManagerInternal::GetCurrentDesktop()` — identify current
+  desktop for focus tracking
 - `IVirtualDesktopManagerInternal::SwitchDesktop(pDesktop)` — direct switch
 
 `winvd` abstracts the COM layer and handles the fact that
@@ -134,12 +153,44 @@ cd vd-hotkeys
 powershell -ExecutionPolicy Bypass -File package.ps1
 
 # Outputs
-dist\vd-hotkeys-v0.1.1-setup.exe        # installer (requires Inno Setup)
-dist\vd-hotkeys-v0.1.1-windows-x64.zip  # portable zip (exe + docs)
+dist\vd-hotkeys-v0.2.0-setup.exe        # installer (requires Inno Setup)
+dist\vd-hotkeys-v0.2.0-windows-x64.zip  # portable zip (exe + docs)
 ```
+
+### Building from WSL
+
+The project can be built from WSL by invoking PowerShell directly:
+
+```bash
+# Build only
+cd vd-hotkeys
+powershell.exe -Command "cd $(wslpath -w $(pwd)); cargo build --release"
+
+# Kill a running instance first if needed
+powershell.exe -Command "Stop-Process -Name vd-hotkeys -Force -ErrorAction SilentlyContinue"
+```
+
+The `package.ps1` script contains `Read-Host` prompts that block in
+non-interactive contexts. When running from WSL or a CI pipeline, invoke
+the build and packaging steps individually instead of sourcing the script
+directly.
 
 The installer registers autostart via `HKCU\...\Run` and adds an entry to
 Add/Remove Programs. No elevation required.
+
+## v0.2.0 Changes
+
+- **Focus tracking**: saves the foreground window per desktop before switching
+  and restores it on arrival. Eliminates the need to click/refocus after every
+  desktop switch.
+- **Fallback focus**: if the saved window no longer exists (closed while away),
+  falls back to the topmost visible app window on the desktop.
+- **Self-replacement**: launching a new instance automatically terminates any
+  existing `vd-hotkeys.exe` process, avoiding "hotkey already registered"
+  errors during upgrades or restarts.
+- **Reliable SetForegroundWindow**: uses the Alt-key trick (`SendInput` to
+  simulate Alt press/release) plus a 50ms post-switch delay to ensure Windows
+  grants foreground permission after a desktop transition.
 
 ## Reference
 
