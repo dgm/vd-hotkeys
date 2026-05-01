@@ -25,11 +25,14 @@ machines where the full supply chain must be accountable.
 
 ## Non-Goals
 
-- Moving windows between desktops (stretch goal: drag + hotkey to carry a
-  window to another desktop)
 - Desktop naming, wallpaper management
 - System tray UI
 - Support for Windows 10 or Windows versions prior to 24H2 (build 26100)
+
+## Future Goals
+
+- Moving windows between desktops (drag + hotkey to carry a window to another
+  desktop)
 
 ## Technology
 
