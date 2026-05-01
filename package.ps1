@@ -1,4 +1,4 @@
-# package.ps1 — builds the installer and portable zip for distribution
+# package.ps1 - builds the installer and portable zip for distribution
 # Run from the repo root on Windows:
 #   powershell -ExecutionPolicy Bypass -File package.ps1
 # Requires Inno Setup 6 for the installer (https://jrsoftware.org/isinfo.php)
@@ -34,7 +34,7 @@ if ($iscc) {
     if ($LASTEXITCODE -ne 0) { exit 1 }
     Write-Host "Installer ready: $out_dir\vd-hotkeys-v$version-setup.exe"
 } else {
-    Write-Host "Inno Setup not found — skipping installer build."
+    Write-Host "Inno Setup not found - skipping installer build."
     Write-Host "Install from https://jrsoftware.org/isinfo.php then re-run."
 }
 
@@ -54,6 +54,7 @@ Write-Host ""
 Write-Host "Portable zip ready: $zip"
 Write-Host ""
 Write-Host "To create a Forgejo release:"
-Write-Host "  1. git tag v$version && git push origin v$version"
-Write-Host "  2. Upload both dist\ files as release assets in Forgejo"
+Write-Host "  1. git tag v$version"
+Write-Host "  2. git push origin v$version"
+Write-Host "  3. Upload both dist\ files as release assets in Forgejo"
 Read-Host "`nPress Enter to exit"
