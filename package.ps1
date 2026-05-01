@@ -4,6 +4,7 @@
 # Requires Inno Setup 6 for the installer (https://jrsoftware.org/isinfo.php)
 
 $ErrorActionPreference = "Stop"
+trap { Write-Host "`nERROR: $_" -ForegroundColor Red; Read-Host "`nPress Enter to exit"; exit 1 }
 
 # Read version from Cargo.toml
 $cargo = Get-Content "$PSScriptRoot\Cargo.toml" | Where-Object { $_ -match '^version\s*=' }
@@ -53,3 +54,4 @@ Write-Host ""
 Write-Host "To create a Forgejo release:"
 Write-Host "  1. git tag v$version && git push origin v$version"
 Write-Host "  2. Upload both dist\ files as release assets in Forgejo"
+Read-Host "`nPress Enter to exit"
